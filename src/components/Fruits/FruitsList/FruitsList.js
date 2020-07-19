@@ -9,7 +9,7 @@ const fruitsList = (props) => {
   return (
     <div className="fruitsList">
       <div className="heading2">
-        <h2>Fruits List</h2>
+        <div className={styles.title}>Fruits List</div>
         <NavLink to="/getFruits">
           <button className={styles.fruitButtons}>Fruits</button>
         </NavLink>
@@ -18,7 +18,7 @@ const fruitsList = (props) => {
         </NavLink>
         <div className={styles.fruitsBox}>
           <ul>
-            {props.fruits.map((fruit, i) => {
+            {props.fruits.map((fruit) => {
               return (
                 <Link
                   to={`/fruitdetails/${fruit.name.toLowerCase()}`}

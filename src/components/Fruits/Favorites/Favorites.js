@@ -1,13 +1,32 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
+import { connect } from "react-redux";
 
 import styles from "./Favorites.module.css";
+import Fruit from "../Fruit/Fruit";
 
-const favorites = () => {
+const Favorites = (props) => {
+  const getFavoriteFruitsItems = () => {
+    const favoriteFruits = props.fruits.filter((fruit) => {
+      return props.favoriteFruitsNamesList.includes(fruit.name);
+    });
+    return favoriteFruits.map((fruit) => {
+      return (
+        <Link
+          to={`/fruitdetails/${fruit.name.toLowerCase()}`}
+          key={fruit.id}
+          genus={fruit.genus}
+        >
+          <Fruit fruitDetails={fruit} />
+        </Link>
+      );
+    });
+  };
+
   return (
     <div className="favorites">
       <div className="heading2">
-        <h2>Favorites</h2>
+        <div className={styles.title}>Favorites</div>
         <NavLink to="/getFruits">
           <button className={styles.fruitButtons}>Fruits</button>
         </NavLink>
@@ -16,14 +35,19 @@ const favorites = () => {
         </NavLink>
 
         <div className={styles.fruitsBox}>
-          <ul>
-            <li>Red Apple</li>
-            <li>Banana</li>
-          </ul>
+          <ul>{getFavoriteFruitsItems()}</ul>
         </div>
       </div>
     </div>
   );
 };
 
-export default favorites;
+const mapStateToProps = (state) => {
+  return {
+    fruits: state.requestFruitsReducer.fruits,
+    favoriteFruitsNamesList:
+      state.localFavoriteFruitsReducer.favoriteFruitsNamesList,
+  };
+};
+
+export default connect(mapStateToProps)(Favorites);

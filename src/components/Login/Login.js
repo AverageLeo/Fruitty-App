@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 
 import styles from "./Login.module.css";
-import Image from "../Fruits/FruitDetails/Red Apple.png";
+import Image from "../../assets/fruits.png";
+import { loginUserActionCreator } from "../../actions/actions";
 
 class Login extends Component {
   state = {
@@ -19,21 +21,16 @@ class Login extends Component {
   };
 
   onSubmitSignIn = () => {
-    fetch("http://localhost:3003/login", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: this.state.signInEmail,
-        password: this.state.signInPassword,
-      }),
-    })
-      .then((response) => response.json())
-      .then(({ user, token }) => {
-        if (user && user._id) {
-          this.props.history.push("/getFruits");
-        }
-      });
+    this.props.onLoginUser(this.state.signInEmail, this.state.signInPassword);
   };
+
+  componentDidUpdate() {
+    // if props got the user it means the API user authentication
+    // check was successful and the user is logged-in
+    if (this.props.user) {
+      this.props.history.push("/getFruits");
+    }
+  }
 
   render() {
     return (
@@ -67,25 +64,41 @@ class Login extends Component {
             />
           </div>
 
-          <Link to="">
-            <button
-              type="submit"
-              className={styles.button}
-              onClick={this.onSubmitSignIn}
-            >
-              Login
-            </button>
-          </Link>
-          <h3 className={styles.h3margin}>
-            Don't have an Account?{" "}
-            <Link to="/register">
-              <button className={styles.button}>Register Here</button>
-            </Link>
-          </h3>
+          <button
+            type="submit"
+            className={styles.button}
+            onClick={(event) => {
+              // PreventDefault helps against form default behavior of re-rendering
+              event.preventDefault();
+              this.onSubmitSignIn();
+            }}
+          >
+            Login
+          </button>
         </form>
+        <h3 className={styles.h3margin}>
+          Don't have an Account?{" "}
+          <Link to="/register">
+            <button className={styles.button}>Register Here</button>
+          </Link>
+        </h3>
       </div>
     );
   }
 }
 
-export default Login;
+const mapStateToProps = (state) => {
+  return {
+    user: state.loginUserReducer.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onLoginUser: (email, password) => {
+      return dispatch(loginUserActionCreator(email, password));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
